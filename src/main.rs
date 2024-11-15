@@ -13,10 +13,14 @@ fn main() {
         match stream {
             Ok(mut stream) => {
                 println!("accepted new connection");
-                let mut buf = Vec::new();
-                stream.read(&mut buf).unwrap();
-
-                stream.write(b"+PONG\r\n").unwrap();
+                let mut buf = [0; 4096];
+                loop {
+                    let read_count = stream.read(&mut buf).unwrap();
+                    if read_count == 0 {
+                        break;
+                    }
+                    stream.write(b"+PONG\r\n").unwrap();
+                }
             }
             Err(e) => {
                 println!("error: {}", e);
